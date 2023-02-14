@@ -12,6 +12,14 @@ inputs:
     required: false
     default: "keyevent-dev"
     type: string
+  github_write_token:
+    description: 'token needed to write to main branch'
+    required: true
+    type: string
+  slacktee_token:
+    description: 'token needed to send slack message'
+    required: true
+    type: string
 
 runs:
   using: "composite"
@@ -23,8 +31,7 @@ runs:
     - name: tag repo create changelog and create release
       run: changelog.sh -t ${{ inputs.version_tag }} --release --slack_channel keyevent-dev
       shell: bash
-      # handle when empty input is provided
       env:
-        GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        SLACKTEE_TOKEN: ${{ secrets.SLACKTEE_TOKEN }}
+        GH_TOKEN: ${{ inputs.github_write_token }}
+        SLACKTEE_TOKEN: ${{ inputs.slacktee_token }}
 
