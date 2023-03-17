@@ -207,21 +207,24 @@ echo "------------------------------------------------------"
 echo ""
 
 if [[ "$tag" = 'unreleased' ]];then
-  echo "tag is unreleased so exiting, not updating ./CHANGELOG.md, tagging or releasing to gihub."
+  echo "tag is unreleased so exiting, not updating ./CHANGELOG.md, tagging or releasing to github."
   exit
+fi
+
+if [[ ! -f CHANGELOG.md ]];then
+  touch CHANGELOG.md
 fi
 
 if grep -q $latest_tag CHANGELOG.md;then
   echo "tag already exists in CHANGELOG.md"
 else
-
   # add our new changelog entry to the top of our changelog
   cp CHANGELOG.md $CHANGELOG_PLAIN.old
   cp $CHANGELOG_PLAIN CHANGELOG.md
   cat $CHANGELOG_PLAIN.old >> CHANGELOG.md
 
   git add CHANGELOG.md
-  git commit -m '$latest_tag changelog update'
+  git commit -m "$latest_tag changelog update"
   git push origin
 fi
 
@@ -245,10 +248,14 @@ if [[ "$release" -eq 1 ]];then
   gh release create $latest_tag -F $CHANGELOG_GITHUB
 fi
 
-if [[ ! -f /tmp/slacktee.sh ]];then
-  wget -q https://raw.githubusercontent.com/coursehero/slacktee/222129128de4bdcd83bc23138b4fafaf60385b9a/slacktee.sh -O /tmp/slacktee.sh
-  chmod +x /tmp/slacktee.sh
-fi
+if printenv SLACKTEE_TOKEN > /dev/null ;then
 
-echo "$repository_url/releases/tag/$latest_tag" | /tmp/slacktee.sh -p -c $slack_channel --icon "https://avatars.githubusercontent.com/u/65916846?s=48&v=4"
-cat $CHANGELOG_PLAIN | /tmp/slacktee.sh -q -c $slack_channel --icon "https://avatars.githubusercontent.com/u/65916846?s=48&v=4"
+  if [[ ! -f /tmp/slacktee.sh ]];then
+    wget -q https://raw.githubusercontent.com/coursehero/slacktee/222129128de4bdcd83bc23138b4fafaf60385b9a/slacktee.sh -O /tmp/slacktee.sh
+    chmod +x /tmp/slacktee.sh
+  fi
+
+  echo "$repository_url/releases/tag/$latest_tag" | /tmp/slacktee.sh -p -c $slack_channel --icon "https://avatars.githubusercontent.com/u/65916846?s=48&v=4"
+  cat $CHANGELOG_PLAIN | /tmp/slacktee.sh -q -c $slack_channel --icon "https://avatars.githubusercontent.com/u/65916846?s=48&v=4"
+
+fi
