@@ -118,10 +118,11 @@ do
 done
 
 sk-ccommit-cleanup
+set -x
 
 if printenv GITHUB_REF_NAME;then
   git config --global user.email "actions@github.com"
-  git config --global user.name "github actions"
+  git config --global user.name "changelog"
   repository_url="https://github.com/$GITHUB_REPOSITORY"
 else
   repository_url="https://$(git config --get remote.origin.url | perl -ne '/(github.com.*).git/ && print $1' | perl -pe 's/:/\//g' )"
