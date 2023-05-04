@@ -118,11 +118,10 @@ do
 done
 
 sk-ccommit-cleanup
-set -x
 
 if printenv GITHUB_REF_NAME;then
   git config --global user.email "actions@github.com"
-  git config --global user.name "changelog"
+  git config --global user.name "github actions"
   repository_url="https://github.com/$GITHUB_REPOSITORY"
 else
   repository_url="https://$(git config --get remote.origin.url | perl -ne '/(github.com.*).git/ && print $1' | perl -pe 's/:/\//g' )"
@@ -132,6 +131,7 @@ fi
 git_tags=`git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='-version:refname' --tags origin '*.*.*' | grep "$prefix_search_arg" | cut -d '/' -f 3`
 
 # fetch all the tags when they don't exist on github actions checkout
+# and we need to search for all commits in the git log from the previous tag .. latest commit
 git fetch --all > /dev/null 2>&1
 
 # if tag is found we use it as the latest
@@ -184,7 +184,7 @@ for commit in $commits; do
     if [[ "$commit_type_unified" = 'excluded' ]];then
       continue
     fi
-    echo "  - $commit_subject_no_type" >> /tmp/${commit_type_unified}.$USER
+    echo "- $commit_subject_no_type" >> /tmp/${commit_type_unified}.$USER
 	fi
 
 done
